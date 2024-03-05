@@ -1,4 +1,0 @@
-$URL=https://cloud.gravityzone.bitdefender.com/api/packages
-$Key=20dcea5a5954fe9ceb570c1fcd2396dd52ac0a40d5bd24871a82df62770f2e01
-
-Invoke-RestMethod -Authorization: Basic      $Key
