@@ -17,4 +17,15 @@ $Body = '{
 
 $list = Invoke-RestMethod -Uri "https://cloud.gravityzone.bitdefender.com/api/v1.0/jsonrpc/packages" -Headers $Headers -Method "POST" -ContentType "application/json" -Body $Body
 
-Write-Output $list
+$i = $list.result | Out-String
+
+$a = $i.Split("`n")
+
+foreach($t in $a){
+    if ($t.Contains("fullKitWindowsX64")){
+        $url = $t.TrimStart("fullKitWindowsX64        : ")
+    }
+}
+
+
+Invoke-WebRequest $url -Headers $Headers -OutFile C:\temp
