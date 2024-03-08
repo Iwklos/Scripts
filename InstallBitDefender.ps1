@@ -3,17 +3,31 @@ $Key="MDRmZWZiODZlMTk4NTMxNjg3ODMxMTgwM2Q0MGE0OTk2NGFlYmVjMzBlYmEyOTVkZjgwMWYxNj
 $Headers = @{
     Authorization = "Basic $Key";
 }
-$Body = '{
-    "params": {
+
+$OS = (Get-ComputerInfo).OsProductType
+
+if ($OS = "WorkStation"){
+    $Body = '{
+        "params": {
       
-      "packageName": "DBS Test"
-  },
-    "jsonrpc": "2.0",
-    "method": "getInstallationLinks",
-    "id": "1"
- }  '
-
-
+          "packageName": "$NINJA_ORGANIZATION_NAME Client"
+      },
+        "jsonrpc": "2.0",
+        "method": "getInstallationLinks",
+        "id": "1"
+     }  '
+ }
+else {
+    $Body = '{
+        "params": {
+      
+          "packageName": "$NINJA_ORGANIZATION_NAME Server"
+      },
+        "jsonrpc": "2.0",
+        "method": "getInstallationLinks",
+        "id": "1"
+     }  '
+}
 
 $list = Invoke-RestMethod -Uri "https://cloud.gravityzone.bitdefender.com/api/v1.0/jsonrpc/packages" -Headers $Headers -Method "POST" -ContentType "application/json" -Body $Body
 
@@ -29,3 +43,4 @@ foreach($t in $a){
 
 
 Invoke-WebRequest $url -Headers $Headers -OutFile C:\temp
+Start-Process -FilePath "C:\temp\*epskit*.exe" /quiet
