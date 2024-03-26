@@ -1,0 +1,17 @@
+# Find folder recusively and copy it to specific folders that contain x chacters
+
+# Location to iterate through
+$Main = "C:\Users\isaiah.k\Documents\MAS90"
+
+# Sources to copy from
+$Src1 = "C:\Users\isaiah.k\Documents\MAS90\MAS_zzz\APZZZ"
+$Src2 = "C:\Users\isaiah.k\Documents\MAS90\MAS_zzz\ARZZZ"
+
+
+# For loop through main directory (With Filter for MAS str) and copy folder (recursively)
+Get-ChildItem $Main -Filter MAS* | ForEach-Object {
+
+    Copy-Item -path $Src1 -destination $_.FullName -Force -Recurse -PassThru
+    Copy-Item -path $Src2 -destination $_.FullName -Force -Recurse -PassThru
+
+}
