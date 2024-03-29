@@ -1,17 +1,30 @@
 # Find folder recusively and copy it to specific folders that contain x chacters
 
-# Location to iterate through
-$Main = "C:\Users\isaiah.k\Documents\MAS90"
+# Location to iterate through (Change 1/2)
+$Main = "C:\_Sage\v2021\MAS90"
 
-# Sources to copy from
-$Src1 = "C:\Users\isaiah.k\Documents\MAS90\MAS_zzz\APZZZ"
-$Src2 = "C:\Users\isaiah.k\Documents\MAS90\MAS_zzz\ARZZZ"
-
+# Location to copy from (Change 2/2)
+# $Src1 = "C:\_Sage\v2021\MAS90\MAS_ABX\APZZZ"
+# $Src2 = "C:\_Sage\v2021\MAS90\MAS_ABX\ARZZZ"
+$src = "C:\_Sage\v2021\MAS90\MAS_ZZZ"
 
 # For loop through main directory (With Filter for MAS str) and copy folder (recursively)
-Get-ChildItem $Main -Filter MAS* | ForEach-Object {
 
-    Copy-Item -path $Src1 -destination $_.FullName -Force -Recurse -PassThru
-    Copy-Item -path $Src2 -destination $_.FullName -Force -Recurse -PassThru
+# Added outer loop to handle each subfolder individually rather than have multiple $Src_X entries
+Get-ChildItem $src -Filter *ZZZ | ForEach-Object {
+	$srcFolder = $_.FullName
+	Get-ChildItem $Main -Filter MAS* | ForEach-Object {
+		# Added in exclusion of folders that should not be a destination folder in the production system
+		if (($_.FullName.ToLower().IndexOf("mas_zzz") -eq -1) -and ($_.FullName.ToLower().IndexOf("mas_system") -eq -1) -and ($_.FullName.ToLower().IndexOf("mas_user") -eq -1) )
+		{
+			# Logic to create a destination folder to have the proper folder name containing the parent folder company code
+			$Dest = $_.FullName +"\" + $srcFolder.SubString($srcFolder.Length-5, 2) + $_.FullName.SubString($_.FullName.Length -3, 3)
+			$srcFiles = $srcFolder + "\*.*"
+			$Dest
+			Copy-Item $srcFiles -destination $Dest -Force -Recurse -PassThru
+			#Copy-Item -path $Src1 -destination $_.FullName -Force -Recurse -PassThru
+			#Copy-Item -path $Src2 -destination $_.FullName -Force -Recurse -PassThru
+		}	
 
+	}
 }
