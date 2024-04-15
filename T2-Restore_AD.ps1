@@ -25,6 +25,52 @@ Get-ADUser -Filter * -SearchBase “ou=Finance,dc=consultingfirm,dc=com” -Prop
 #>
 
 # Isaiah Klosterman, StudentID: 010467788
+$file = Import-Csv financePersonnel.csv
+$i = 0
+
+# Check if OU is present
+try {
+    
+    Remove-ADOrganizationalUnit -Identity "OU=Finance,DC=consultingfirm,DC=com" -Recursive -Confirm:$false
+    Write-Output "OU Finance was found and deleted"
+}
+# If OU is not present then inform user
+catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException] {
+    Write-Output "OU Finance was not found"
+
+}
+# After checking OU above create new OU
+finally {
+    New-ADOrganizationalUnit -Name "Finance" -ProtectedFromAccidentalDeletion $false
+    Write-Output "OU Finance Created"
+}
 
 
-New-ADOrganizationalUnit -Name "UserAccounts" -Path "DC=FABRIKAM,DC=COM" 
+# Loop through each row and gather user information
+ForEach ($user in $file) {
+    
+    #Organize Parameters for users
+    $splat = @{
+        
+        # Map parameters for AD Users
+        Path = "OU=Finance,DC=consultingfirm,DC=com"
+        GivenName = $file.First_Name[$i]
+        Surname = $file.Last_Name[$i]
+        DisplayName = "$GivenName $Surname"
+        Name = $file.samAccount[$i]
+        PostalCode = $file.PostalCode[$i]
+        OfficePhone = $file.OfficePhone[$i]
+        MobilePhone = $file.MobilePhone[$i]
+    }
+
+    
+
+    # Create new AD user for each user in CSV file
+    New-ADUser @splat
+
+    #Iterate to next integer for next loop
+    $i = $i + 1
+}
+
+# End result verification
+Get-ADUser -Filter * -SearchBase “ou=Finance,dc=consultingfirm,dc=com” -Properties DisplayName,PostalCode,OfficePhone,MobilePhone > .\AdResults.txt

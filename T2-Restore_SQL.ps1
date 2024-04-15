@@ -15,3 +15,23 @@ Invoke-Sqlcmd -Database ClientDB –ServerInstance .\SQLEXPRESS -Query ‘SELECT
 #>
 
 # Isaiah Klosterman, StudentID: 010467788
+try {
+    
+    Get-sqlDatabase -Name "ClientDB"
+    Write-Output "DB ClientDB was found and deleted"
+}
+# If OU is not present then inform user
+catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException] {
+    Write-Output "DB ClientDB was not found"
+
+}
+# After checking OU above create new OU
+finally {
+    New-sqlDatabase -Name "ClientDB" -ProtectedFromAccidentalDeletion $false
+    Write-Output "OU Finance Created"
+}}
+
+
+
+
+Invoke-Sqlcmd -Database ClientDB –ServerInstance .\SQLEXPRESS -Query ‘SELECT * FROM dbo.Client_A_Contacts’ > .\SqlResults.txt
