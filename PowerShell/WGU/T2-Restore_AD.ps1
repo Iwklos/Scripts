@@ -25,6 +25,7 @@ Get-ADUser -Filter * -SearchBase “ou=Finance,dc=consultingfirm,dc=com” -Prop
 #>
 
 # Isaiah Klosterman, StudentID: 010467788
+
 $file = Import-Csv financePersonnel.csv
 $i = 0
 
@@ -45,7 +46,6 @@ finally {
     Write-Output "OU Finance Created"
 }
 
-
 # Loop through each row and gather user information
 ForEach ($user in $file) {
     
@@ -56,7 +56,7 @@ ForEach ($user in $file) {
         Path = "OU=Finance,DC=consultingfirm,DC=com"
         GivenName = $file.First_Name[$i]
         Surname = $file.Last_Name[$i]
-        DisplayName = "$GivenName $Surname"
+        DisplayName = $file.First_Name[$i] + " " + $file.Last_Name[$i]
         Name = $file.samAccount[$i]
         PostalCode = $file.PostalCode[$i]
         OfficePhone = $file.OfficePhone[$i]

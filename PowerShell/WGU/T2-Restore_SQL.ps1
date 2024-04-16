@@ -15,23 +15,32 @@ Invoke-Sqlcmd -Database ClientDB –ServerInstance .\SQLEXPRESS -Query ‘SELECT
 #>
 
 # Isaiah Klosterman, StudentID: 010467788
+
+# Assign variables
+$svr = "$(hostname)\SQLEXPRESS"
+$file = Import-Csv NewClientData.csv
+$db = "ClientDB"
+$tb = "Client_A_Contacts"
+
+# Check if DB is present and delete
 try {
-    
-    Get-sqlDatabase -Name "ClientDB"
+    Invoke-Sqlcmd -ServerInstance $svr -Query "ALTER DATABASE $db SET SINGLE_USER WITH ROLLBACK IMMEDIATE"
+    Invoke-Sqlcmd -ServerInstance $svr -Query "Drop database $db" -ErrorAction Stop
     Write-Output "DB ClientDB was found and deleted"
 }
-# If OU is not present then inform user
-catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException] {
+# If DB is not present then inform user
+catch [Microsoft.SqlServer.Management.PowerShell.SqlPowershellSqlExecutionException] {
     Write-Output "DB ClientDB was not found"
 
 }
-# After checking OU above create new OU
+# After checking DB above create new DB
 finally {
-    New-sqlDatabase -Name "ClientDB" -ProtectedFromAccidentalDeletion $false
-    Write-Output "OU Finance Created"
-}}
+    Invoke-Sqlcmd -ServerInstance $svr -Query "Create database $db"
+    Write-Output "ClientDB Database Created"
+}
 
+# Create and write csv data to the table 
+Write-SqlTableData -InputData $file -ServerInstance $svr -DatabaseName $db -TableName $tb -SchemaName "dbo" -Force
 
-
-
+# End result verification
 Invoke-Sqlcmd -Database ClientDB –ServerInstance .\SQLEXPRESS -Query ‘SELECT * FROM dbo.Client_A_Contacts’ > .\SqlResults.txt
